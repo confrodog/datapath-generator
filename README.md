@@ -5,9 +5,17 @@ This program takes high level pseudo code and converts it using C++ to verilog. 
 
 # Contributors              Net ID            Course     Task
 Amir Mohammad Asdagh Pour   asdaghpour        513        Critical Path Design and Implementation
-Alex Reyes                  alexanderfreyes   413        Cmake List generation, Testing on ECE3 server
+Alex F Reyes                 alexanderfreyes   413        Cmake List generation, Testing on ECE3 server
 Connor Jusitin Musick       cjmusick          413        File input and information parsing, Testing
 Miranda Hampton             mirandahampton    413        File input and information parsing, Error checking
 Kris Rockowitz              rockowitzks       513        Verilog translation, Error checking, Output, Critical Path framing
+
+| Contributors              | Net Id          | Course | Task                                                               |
+|---------------------------|-----------------|--------|--------------------------------------------------------------------|
+| Amir Mohammad Asdagh Pour | asdaghpour      | 513    | Critical Path Design and Implementation                            |
+| Alex F Reyes              | alexanderfreyes | 413    | Cmake List generation, Testing on ECE3 server                      |
+| Connor Jusitin Musick     | cjmusick        | 413    | File input and information parsing, Testing                        |
+| Miranda Hampton           | mirandahampton  | 413    | File input and information parsing, Error checking                 |
+| Kris Rockowitz            | rockowitzks     | 513    | Verilog translation, Error checking, Output, Critical Path framing |
 
 This is not an *efficient* way to do this, but it is *a* way.
