@@ -12,3 +12,12 @@ This program takes high level pseudo code and converts it using C++ to verilog. 
 | Kris Rockowitz            | rockowitzks     | 513    | Verilog translation, Error checking, Output, Critical Path framing |
 
 This is not an *efficient* way to do this, but it is *a* way.
+
+# dpgenULTRA.cpp is the completed program (no Critical Path yet). It has been tested on the ece3 server with the precise installation instructions provided by Tosi.
+
+
+# TODO: visually and programmatically test the .v files and make sure they are verilog ready.
+
+# TODO: Clean up the code by programming standards. (push functions to header files)
+
+# TODO: Critical path analysis and inclusion
