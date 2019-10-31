@@ -10,4 +10,4 @@ Connor Jusitin Musick       cjmusick          413        File input and informat
 Miranda Hampton             mirandahampton    413        File input and information parsing, Error checking
 Kris Rockowitz              rockowitzks       513        Verilog translation, Error checking, Output, Critical Path framing
 
-This is not an efficient way to do this, but it is * a * way.
+This is not an *efficient* way to do this, but it is *a* way.
