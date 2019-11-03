@@ -19,73 +19,73 @@ dpgen_withCritPath.cpp : This implements a DFS to find critical paths, complete 
 processedCircuits: This contains all circuits processed by the new dpgen with critical path enabled. Please check these to ensure they make sense.
 
 # critical paths (please verify):
-#M1
+**M1
 
 ADD 4.924000 REG 2.879000 Total Latency = 7.802999
 
 Critical Path : 7.803 ns
 
-#M2
+**M2
 
 ADD 7.270000 REG 3.602000 Total Latency = 10.872000
 
 Critical Path : 10.872 ns
 
-#M3
+**M3
 
 ADD 4.924000 REG 2.879000 Total Latency = 7.802999
 
 Critical Path : 7.803 ns
 
-#S1
+**S1
 
 MUL 7.811000 SUB 5.569000 REG 3.061000 Total Latency = 16.441000
 
 Critical Path : 16.441 ns
 
-#S2
+**S2
 
 MUX2x1 8.079000 MUX2x1 8.079000 SHR 8.819000 REG 3.602000 Total Latency = 28.579000
 
 Critical Path : 28.579 ns
 
-#S3
+**S3
 
 ADD 7.270000 ADD 7.270000 ADD 7.270000 SHR 8.819000 SHR 8.819000 SHR 8.819000 REG 3.061000 Total Latency = 51.327999
 
 Critical Path : 51.328 ns
 
-#S4
+**S4
 
 ADD 9.566000 COMP 8.416000 SHL 11.220000 REG 3.602000 Total Latency = 32.804001
 
 Critical Path : 32.804 ns
 
-#S5
+**S5
 
 MOD 250.582993 COMP 8.416000 MUX2x1 8.766000 REG 3.966000 Total Latency = 271.730988
 
 Critical Path : 271.731 ns
 
-#S6
+**S6
 
 MOD 250.582993 COMP 8.416000 MUX2x1 8.766000 REG 3.966000 Total Latency = 271.730988
 
 Critical Path : 271.731 ns
 
-#U1
+**U1
 
 ADD 4.924000 REG 2.879000 Total Latency = 7.802999
 
 Critical Path : 7.803 ns
 
-#U2
+**U2
 
 ADD 7.270000 REG 3.602000 Total Latency = 10.872000
 
 Critical Path : 10.872 ns
 
-#U3
+**U3
 
 ADD 4.924000 REG 2.879000 Total Latency = 7.802999
 
