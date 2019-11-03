@@ -15,6 +15,7 @@ This is not an *efficient* way to do this, but it is *a* way.
 
 # recently added:
 dpgen_withCritPath.cpp : This implements a DFS to find critical paths, complete with cout. Will need to comment out printing of individual components and latencies before submitting.
+
 processedCircuits: This contains all circuits processed by the new dpgen with critical path enabled. Please check these to ensure they make sense.
 
 # critical paths (please verify):
