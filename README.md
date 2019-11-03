@@ -13,11 +13,51 @@ This program takes high level pseudo code and converts it using C++ to verilog. 
 
 This is not an *efficient* way to do this, but it is *a* way.
 
-# dpgenULTRA.cpp is the completed program (no Critical Path yet). It has been tested on the ece3 server with the precise installation instructions provided by Tosi.
+# critical paths (please verify):
+M1
+ADD 4.924000 REG 2.879000 Total Latency = 7.802999
+Critical Path : 7.803 ns
 
+M2
+ADD 7.270000 REG 3.602000 Total Latency = 10.872000
+Critical Path : 10.872 ns
 
-# TODO: visually and programmatically test the .v files and make sure they are verilog ready.
+M3
+ADD 4.924000 REG 2.879000 Total Latency = 7.802999
+Critical Path : 7.803 ns
 
-# TODO: Clean up the code by programming standards. (push functions to header files)
+S1
+MUL 7.811000 SUB 5.569000 REG 3.061000 Total Latency = 16.441000
+Critical Path : 16.441 ns
 
-# TODO: Critical path analysis and inclusion
+S2
+MUX2x1 8.079000 MUX2x1 8.079000 SHR 8.819000 REG 3.602000 Total Latency = 28.579000
+Critical Path : 28.579 ns
+
+S3
+ADD 7.270000 ADD 7.270000 ADD 7.270000 SHR 8.819000 SHR 8.819000 SHR 8.819000 REG 3.061000 Total Latency = 51.327999
+Critical Path : 51.328 ns
+
+S4
+ADD 9.566000 COMP 8.416000 SHL 11.220000 REG 3.602000 Total Latency = 32.804001
+Critical Path : 32.804 ns
+
+S5
+MOD 250.582993 COMP 8.416000 MUX2x1 8.766000 REG 3.966000 Total Latency = 271.730988
+Critical Path : 271.731 ns
+
+S6
+MOD 250.582993 COMP 8.416000 MUX2x1 8.766000 REG 3.966000 Total Latency = 271.730988
+Critical Path : 271.731 ns
+
+U1
+ADD 4.924000 REG 2.879000 Total Latency = 7.802999
+Critical Path : 7.803 ns
+
+U2
+ADD 7.270000 REG 3.602000 Total Latency = 10.872000
+Critical Path : 10.872 ns
+
+U3
+ADD 4.924000 REG 2.879000 Total Latency = 7.802999
+Critical Path : 7.803 ns
