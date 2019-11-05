@@ -23,10 +23,10 @@ SADD #(.DATAWIDTH(32)) SADD1(a, c, e);
 SSUB #(.DATAWIDTH(32)) SSUB2(a, b, f);
 SCOMP #(.DATAWIDTH(32)) SCOMP3(d, e, 0, 0, dEQe);
 SCOMP #(.DATAWIDTH(32)) SCOMP4(d, e, 0, dLTe, 0);
-SMUX2x1 #(.DATAWIDTH(32)) SMUX2x15(d, e, {31'b0, dLTe[0:0]}), g);
-SMUX2x1 #(.DATAWIDTH(32)) SMUX2x16(g, f, {31'b0, dEQe[0:0]}), h);
-SSHL #(.DATAWIDTH(32)) SSHL7(g, {31'b0, dLTe[0:0]}), xwire);
-SSHR #(.DATAWIDTH(32)) SSHR8(h, {31'b0, dEQe[0:0]}), zwire);
+SMUX2x1 #(.DATAWIDTH(32)) SMUX2x15(d, e, {31'b0, dLTe}, g);
+SMUX2x1 #(.DATAWIDTH(32)) SMUX2x16(g, f, {31'b0, dEQe}, h);
+SSHL #(.DATAWIDTH(32)) SSHL7(g, {31'b0, dLTe}, xwire);
+SSHR #(.DATAWIDTH(32)) SSHR8(h, {31'b0, dEQe}, zwire);
 SREG #(.DATAWIDTH(32)) SREG9(xwire, clk, rst, x);
 SREG #(.DATAWIDTH(32)) SREG10(zwire, clk, rst, z);
 

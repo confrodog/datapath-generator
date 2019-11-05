@@ -18,7 +18,7 @@ SDEC #(.DATAWIDTH(64)) SDEC0(a, e);
 SINC #(.DATAWIDTH(64)) SINC1(c, f);
 SMOD #(.DATAWIDTH(64)) SMOD2(a, c, g);
 SCOMP #(.DATAWIDTH(64)) SCOMP3(g, zero, 0, 0, gEQz);
-SMUX2x1 #(.DATAWIDTH(64)) SMUX2x14(e, f, {63'b0, gEQz[0:0]}), zwire);
+SMUX2x1 #(.DATAWIDTH(64)) SMUX2x14(e, f, {63'b0, gEQz}, zwire);
 SREG #(.DATAWIDTH(64)) SREG5(zwire, clk, rst, z);
 
 endmodule

@@ -25,12 +25,12 @@ SADD #(.DATAWIDTH(64)) SADD1(a, c, e);
 SSUB #(.DATAWIDTH(64)) SSUB2(a, b, f);
 SCOMP #(.DATAWIDTH(64)) SCOMP3(d, e, 0, 0, dEQe);
 SCOMP #(.DATAWIDTH(64)) SCOMP4(d, e, 0, dLTe, 0);
-SMUX2x1 #(.DATAWIDTH(64)) SMUX2x15(d, e, {63'b0, dLTe[0:0]}), g);
-SMUX2x1 #(.DATAWIDTH(64)) SMUX2x16(g, f, {63'b0, dEQe[0:0]}), h);
+SMUX2x1 #(.DATAWIDTH(64)) SMUX2x15(d, e, {63'b0, dLTe}, g);
+SMUX2x1 #(.DATAWIDTH(64)) SMUX2x16(g, f, {63'b0, dEQe}, h);
 SREG #(.DATAWIDTH(64)) SREG7(g, clk, rst, greg);
 SREG #(.DATAWIDTH(64)) SREG8(h, clk, rst, hreg);
-SSHL #(.DATAWIDTH(64)) SSHL9(hreg, {63'b0, dLTe[0:0]}), xrin);
-SSHR #(.DATAWIDTH(64)) SSHR10(greg, {63'b0, dEQe[0:0]}), zrin);
+SSHL #(.DATAWIDTH(64)) SSHL9(hreg, {63'b0, dLTe}, xrin);
+SSHR #(.DATAWIDTH(64)) SSHR10(greg, {63'b0, dEQe}, zrin);
 SREG #(.DATAWIDTH(32)) SREG11(xrin[31:0], clk, rst, x);
 SREG #(.DATAWIDTH(32)) SREG12(zrin[31:0], clk, rst, z);
 
