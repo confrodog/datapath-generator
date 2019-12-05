@@ -176,4 +176,7 @@ void FDS(Graph g, int lambda){
     } // end while
 }
 
-
+int main() {
+    cout << "checking to make sure I can build this correctly";
+    return 0;
+}
