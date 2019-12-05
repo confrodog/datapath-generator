@@ -69,6 +69,7 @@ class Node{
 public:
     Operation operation; // add/sub, mult, logic, div/mod
     vector<string> inputs; // max 2 inputs, pretty sure it has to be this way
+    Node *parent;
     string output; // max 1 output
     int asap; // this is the first element of timeframe for FDS
     int alap; // this is the second element of timeframe for FDS
@@ -76,6 +77,7 @@ public:
     bool scheduled; // default false, helps to shrink each iteration of FDS
     int selfForce; // SUM(DG(i) * deltaX(i)) where DG(i) is time probability and deltaX(i) is
     Node(){
+        this->parent = Node();
         this->operation = Operation();
         this->output = "";
         this->alap = 0;
@@ -86,11 +88,9 @@ public:
     }
 };
 
-class Graph{ // maybe, I don't really know how graphs work
+class Graph{ // will contain the vector of all the edges, where the edges have the children/parent information
     public:
     vector<Node> vertices;
-    vector<string> edges;
-    
     Graph(){
     }
 };
@@ -178,5 +178,24 @@ void FDS(Graph g, int lambda){
 
 int main() {
     cout << "checking to make sure I can build this correctly";
+    Variable var1("x", "int", 2);
+    Variable var2("y", "int", 2);
+    Variable var3("z", "int", 2);
+    Operation op1;
+    op1.result = var3;
+    op1.equals = "=";
+    op1.var1 = var1;
+    op1.var2 = var2;
+
+//     Variable result; // the leftmost variable aka result of the op in most cases
+//     string equals; // the equals operator
+//     Variable var1; // the first variable after the equals sign
+//     Variable var2; // the second variable after the equals sign
+//     Variable var3; // the third variable after the equals sign
+//     string op1; // the first operator
+//     string op2; // the second operator
+//     string name; // name of the operation
+//     string type; // type (s for signed, u for unsigned)
+//     int bits; // bits 1, 2, 8, 16, 32, 64
     return 0;
 }
