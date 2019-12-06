@@ -69,7 +69,7 @@ class Node{
 public:
     Operation operation; // add/sub, mult, logic, div/mod
     vector<string> inputs; // max 2 inputs, pretty sure it has to be this way
-    Node *parent;
+    vector<Node*> parent;
     vector<Node*> children;
     string output; // max 1 output
     int asap; // this is the first element of timeframe for FDS
@@ -78,9 +78,9 @@ public:
     bool scheduled; // default false, helps to shrink each iteration of FDS
     int selfForce; // SUM(DG(i) * deltaX(i)) where DG(i) is time probability and deltaX(i) is
     Node(){
-        this->parent = NULL;
         this->children = {};
         this->inputs = {};
+        this->parent = {};
         this->operation = Operation();
         this->output = "";
         this->alap = 0;
@@ -182,15 +182,14 @@ void FDS(Graph g, int lambda){
 }
 
 int main() {
-    cout << "checking to make sure I can build this correctly\n";
-    vector<Operation> listOfOps;
+    vector<Operation> listOfOps; //create a list of test operations
 
-    Variable w("w", "int", 2);
-    Variable x("x", "int", 2);
-    Variable x1("x1", "int", 2);
-    Variable y("y", "int", 2);
-    Variable z("z", "int", 2);
-    Variable z2("z", "int", 2);
+    Variable w("w", "s", 2);
+    Variable x("x", "s", 2);
+    Variable x1("x1", "s", 2);
+    Variable y("y", "s", 2);
+    Variable z("z", "s", 2);
+    Variable z2("z2", "s", 2);
 
     //opp names add/sub, mult, logic, div/mod
     Operation op1; // z = x + y
@@ -201,7 +200,7 @@ int main() {
     op1.op1 = "+";
     op1.bits = 2;
     op1.type = "s";
-    op1.name = "add/sub";
+    op1.name = "ADD";
 
     listOfOps.push_back(op1);
 
@@ -213,7 +212,7 @@ int main() {
     op2.op1 = "-";
     op2.bits = 2;
     op2.type = "s";
-    op2.name = "add/sub";
+    op2.name = "SUB";
     
     listOfOps.push_back(op2);
 
@@ -225,7 +224,7 @@ int main() {
     op3.op1 = "*";
     op3.bits = 4;
     op3.type = "s";
-    op3.name = "mult";
+    op3.name = "MULT";
 
     listOfOps.push_back(op3);
 
@@ -237,7 +236,7 @@ int main() {
     op4.op1 = "/";
     op4.bits = 4;
     op4.type = "s";
-    op4.name = "div/mod";
+    op4.name = "DIV";
 
     listOfOps.push_back(op4);
 
@@ -247,33 +246,29 @@ int main() {
         Node curr;
         Operation currentOp = listOfOps.at(i);
         curr.operation = currentOp;
+        //TODO: add in the ternary operator check here, that's when the third variable will be used
         curr.inputs.push_back(currentOp.var1.name);
         curr.inputs.push_back(currentOp.var2.name);
         curr.output = currentOp.result.name;
         g.vertices.push_back(curr);
     }
 
-    vector<int> visitedNodes = {}; //keep track of what nodes have been seen
+    vector<int> visitedNodes = {}; //keep track of what nodes have been seen, recording their indexes
     vector<string> visistedOutputs = {};
     for(int i = 0; i < g.vertices.size(); i++) {
-        Node current = g.vertices.at(i);
-        for(int j = 0; j < current.inputs.size(); j++) { //this is usually 2 iterations
-            string inp = current.inputs.at(j);
-            bool found = false;
+        Node *current = &g.vertices.at(i);
+        for(int j = 0; j < current->inputs.size(); j++) { //this is usually 2 iterations
+            string inp = current->inputs.at(j);
             for(int foundIndex = 0; foundIndex < visistedOutputs.size(); foundIndex++) { //now, go through the visited outputs to see if the input matches anything
                 if(inp == visistedOutputs.at(foundIndex)) {
-                    current.parent = &g.vertices.at(visitedNodes.at(foundIndex));
-                    g.vertices.at(visitedNodes.at(foundIndex)).children.push_back(&current);
-                    found = true;
+                    current->parent.push_back(&g.vertices.at(visitedNodes.at(foundIndex)));
+                    g.vertices.at(visitedNodes.at(foundIndex)).children.push_back(current);
                     break;
                 }
             }
-            if (!found) { //if there are no dependencies, then the current node just has the noop as the parent
-                current.parent = &g.noop;
-            }
         } 
         visitedNodes.push_back(i); //add index of where the node visited was in the for loop
-        visistedOutputs.push_back(current.output);
+        visistedOutputs.push_back(current->output);
     }
 
     return 0;
