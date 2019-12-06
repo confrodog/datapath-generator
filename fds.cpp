@@ -253,26 +253,26 @@ int main() {
         g.vertices.push_back(curr);
     }
 
-    vector<Node> visitedNodes = {}; //keep track of what nodes have been seen
+    vector<int> visitedNodes = {}; //keep track of what nodes have been seen
     vector<string> visistedOutputs = {};
     for(int i = 0; i < g.vertices.size(); i++) {
         Node current = g.vertices.at(i);
-        for(int j = 0; j < current.inputs.size(); j++) {
-            cout << current.inputs.at(j) << endl;
-            cout << "Number of outputs: ";
-            cout << visistedOutputs.size() << endl;
-            string inp = current.inputs.at(j); 
-            if (find(visistedOutputs.begin(), visistedOutputs.end(), inp) != visistedOutputs.end()) {
-                cout << "Someone has a dependency" << endl;
-                //found, this means that the input is someone's output
-                //so this current node must be a child of the node with that output
-                current.parent = &visitedNodes.at(j);
-                visitedNodes.at(j).children.push_back(&current);
-            } else {
+        for(int j = 0; j < current.inputs.size(); j++) { //this is usually 2 iterations
+            string inp = current.inputs.at(j);
+            bool found = false;
+            for(int foundIndex = 0; foundIndex < visistedOutputs.size(); foundIndex++) { //now, go through the visited outputs to see if the input matches anything
+                if(inp == visistedOutputs.at(foundIndex)) {
+                    current.parent = &g.vertices.at(visitedNodes.at(foundIndex));
+                    g.vertices.at(visitedNodes.at(foundIndex)).children.push_back(&current);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) { //if there are no dependencies, then the current node just has the noop as the parent
                 current.parent = &g.noop;
             }
         } 
-        visitedNodes.push_back(current);
+        visitedNodes.push_back(i); //add index of where the node visited was in the for loop
         visistedOutputs.push_back(current.output);
     }
 
