@@ -125,22 +125,22 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                                 string parentOp = this->vertices.at(j).parent.at(k)->operation.name;
                                 int tempLatest = 0;
                                 if(parentOp.compare("ADD") == 0) {//1 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 1;
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
                                 }
                                 else if(parentOp.compare("SUB") == 0) {//1 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 1;
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
                                 }
                                 else if(parentOp.compare("MULT") == 0) {//2 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 2;
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 2;
                                 }
                                 else if(parentOp.compare("DIV") == 0) {//3 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 3;
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 3;
                                 }
                                 else if(parentOp.compare("MOD") == 0) {//3 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 3;
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 3;
                                 }
                                 else if(parentOp.compare("TERN") == 0) {//1 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 1;
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
                                 }
                                 if(tempLatest > latestSchedule) {
                                     latestSchedule = tempLatest;
