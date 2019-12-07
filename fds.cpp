@@ -106,58 +106,55 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
     void asap(int latency) {
         for(int i = 1; i <= latency; i++) {
             for(int j = 0; j < this->vertices.size(); j++) {
-                if(this->vertices.at(j).parent.size() == 0) { //schedule, no parents, top node
-                    this->vertices.at(j).asapScheduled = true;
-                    this->vertices.at(j).asap = i;
-                }
-                else { //has parents, check if all of them are scheduled
-                    bool allParentScheduled = true;
-                    int latestSchedule = -1;
-                    for(int k = 0; k < this->vertices.at(j).parent.size(); k++) {
-                        if(!this->vertices.at(j).parent.at(k)->asapScheduled) {
-                            allParentScheduled = false;
-                            break;
-                        } 
-                        else { //if the parent is scheduled, this records the latest a parent is scheduled
-                               //because the latest one is what determines when the child should be scheduled
-                            if(this->vertices.at(j).parent.at(k)->asapScheduled > latestSchedule) {
-                                latestSchedule = this->vertices.at(j).parent.at(k)->asapScheduled;
-                            }
-                        }
+                if(!this->vertices.at(j).asapScheduled) {
+                    if(this->vertices.at(j).parent.size() == 0) { //schedule, no parents, top node
+                        this->vertices.at(j).asapScheduled = true;
+                        this->vertices.at(j).asap = i;
                     }
-                    //now that we know all parents are scheduled, we can start checking if these nodes have
-                    //the resources to be scheduled
-                    if(allParentScheduled){
-                        string opName = this->vertices.at(j).operation.name;
-                        if(!opName.compare("ADD")) {//1 cycle delay
-                            this->vertices.at(j).asapScheduled = true;
-                            this->vertices.at(j).asap = i;
+                    else { //has parents, check if all of them are scheduled
+                        bool allParentScheduled = true;
+                        int latestSchedule = 0;
+                        for(int k = 0; k < this->vertices.at(j).parent.size(); k++) {
+                            if(!this->vertices.at(j).parent.at(k)->asapScheduled) {
+                                allParentScheduled = false;
+                                break;
+                            } 
+                            else { //if the parent is scheduled, this records the latest a parent is scheduled
+                                //because the latest one is what determines when the child should be scheduled
+                                //use parent op name to find when the latest cycle is available
+                                string parentOp = this->vertices.at(j).parent.at(k)->operation.name;
+                                int tempLatest = 0;
+                                if(parentOp.compare("ADD") == 0) {//1 cycle delay
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 1;
+                                }
+                                else if(parentOp.compare("SUB") == 0) {//1 cycle delay
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 1;
+                                }
+                                else if(parentOp.compare("MULT") == 0) {//2 cycle delay
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 2;
+                                }
+                                else if(parentOp.compare("DIV") == 0) {//3 cycle delay
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 3;
+                                }
+                                else if(parentOp.compare("MOD") == 0) {//3 cycle delay
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 3;
+                                }
+                                else if(parentOp.compare("TERN") == 0) {//1 cycle delay
+                                    tempLatest = this->vertices.at(j).parent.at(k)->asapScheduled + 1;
+                                }
+                                if(tempLatest > latestSchedule) {
+                                    latestSchedule = tempLatest;
+                                }
+                            }
                         }
-                        else if(!opName.compare("SUB")) {//1 cycle delay
-                            this->vertices.at(j).asapScheduled = true;
-                            this->vertices.at(j).asap = i;
-                        }
-                        else if(!opName.compare("MULT")) {//2 cycle delay
-                            if(latestSchedule + 2 <= i) {
+                        //now that we know all parents are scheduled, we can start checking if these nodes have
+                        //the resources to be scheduled
+                        if(allParentScheduled){
+                            cout<<latestSchedule<<endl;
+                            if(i>=latestSchedule) {
                                 this->vertices.at(j).asapScheduled = true;
                                 this->vertices.at(j).asap = i;
                             }
-                        }
-                        else if(!opName.compare("DIV")) {//3 cycle delay
-                            if(latestSchedule + 3 <= i) {
-                                this->vertices.at(j).asapScheduled = true;
-                                this->vertices.at(j).asap = i;
-                            }
-                        }
-                        else if(!opName.compare("MOD")) {//3 cycle delay
-                            if(latestSchedule + 3 <= i) {
-                                this->vertices.at(j).asapScheduled = true;
-                                this->vertices.at(j).asap = i;
-                            }
-                        }
-                        else if(!opName.compare("TERN")) {//1 cycle delay
-                            this->vertices.at(j).asapScheduled = true;
-                            this->vertices.at(j).asap = i;
                         }
                     }
                 }
