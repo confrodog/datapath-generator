@@ -75,6 +75,8 @@ public:
     int asap; // this is the first element of timeframe for FDS
     int alap; // this is the second element of timeframe for FDS
     int mobility; // alap - asap. also fyi, width = mobility + 1
+    bool asapScheduled;
+    bool alapScheduled;
     bool scheduled; // default false, helps to shrink each iteration of FDS
     int selfForce; // SUM(DG(i) * deltaX(i)) where DG(i) is time probability and deltaX(i) is
     Node(){
@@ -87,6 +89,8 @@ public:
         this->asap = 0;
         this->mobility = 0;
         this->scheduled = false;
+        this->asapScheduled = false;
+        this->alapScheduled = false;
         this->selfForce = 0;
     }
 };
@@ -97,6 +101,68 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
     Node noop;
     Node sink; //I'm thinking these might be helpful
     Graph(){
+    }
+    //multiplies have 2 cycle delay, divide and modulo and 3 cycle delay, all others 1 cycle
+    void asap(int latency) {
+        for(int i = 1; i <= latency; i++) {
+            for(int j = 0; j < this->vertices.size(); j++) {
+                if(this->vertices.at(j).parent.size() == 0) { //schedule, no parents, top node
+                    this->vertices.at(j).asapScheduled = true;
+                    this->vertices.at(j).asap = i;
+                }
+                else { //has parents, check if all of them are scheduled
+                    bool allParentScheduled = true;
+                    int latestSchedule = -1;
+                    for(int k = 0; k < this->vertices.at(j).parent.size(); k++) {
+                        if(!this->vertices.at(j).parent.at(k)->asapScheduled) {
+                            allParentScheduled = false;
+                            break;
+                        } 
+                        else { //if the parent is scheduled, this records the latest a parent is scheduled
+                               //because the latest one is what determines when the child should be scheduled
+                            if(this->vertices.at(j).parent.at(k)->asapScheduled > latestSchedule) {
+                                latestSchedule = this->vertices.at(j).parent.at(k)->asapScheduled;
+                            }
+                        }
+                    }
+                    //now that we know all parents are scheduled, we can start checking if these nodes have
+                    //the resources to be scheduled
+                    if(allParentScheduled){
+                        string opName = this->vertices.at(j).operation.name;
+                        if(!opName.compare("ADD")) {//1 cycle delay
+                            this->vertices.at(j).asapScheduled = true;
+                            this->vertices.at(j).asap = i;
+                        }
+                        else if(!opName.compare("SUB")) {//1 cycle delay
+                            this->vertices.at(j).asapScheduled = true;
+                            this->vertices.at(j).asap = i;
+                        }
+                        else if(!opName.compare("MULT")) {//2 cycle delay
+                            if(latestSchedule + 2 <= i) {
+                                this->vertices.at(j).asapScheduled = true;
+                                this->vertices.at(j).asap = i;
+                            }
+                        }
+                        else if(!opName.compare("DIV")) {//3 cycle delay
+                            if(latestSchedule + 3 <= i) {
+                                this->vertices.at(j).asapScheduled = true;
+                                this->vertices.at(j).asap = i;
+                            }
+                        }
+                        else if(!opName.compare("MOD")) {//3 cycle delay
+                            if(latestSchedule + 3 <= i) {
+                                this->vertices.at(j).asapScheduled = true;
+                                this->vertices.at(j).asap = i;
+                            }
+                        }
+                        else if(!opName.compare("TERN")) {//1 cycle delay
+                            this->vertices.at(j).asapScheduled = true;
+                            this->vertices.at(j).asap = i;
+                        }
+                    }
+                }
+            }
+        }
     }
 };
 
@@ -249,6 +315,9 @@ int main() {
         //TODO: add in the ternary operator check here, that's when the third variable will be used
         curr.inputs.push_back(currentOp.var1.name);
         curr.inputs.push_back(currentOp.var2.name);
+        if (currentOp.op1 == "?") {
+
+        }
         curr.output = currentOp.result.name;
         g.vertices.push_back(curr);
     }
@@ -270,6 +339,6 @@ int main() {
         visitedNodes.push_back(i); //add index of where the node visited was in the for loop
         visistedOutputs.push_back(current->output);
     }
-
+    g.asap(10);
     return 0;
 }
