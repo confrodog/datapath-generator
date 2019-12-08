@@ -103,6 +103,84 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
     Graph(){
     }
     //multiplies have 2 cycle delay, divide and modulo and 3 cycle delay, all others 1 cycle
+    void alap(int latency) {
+        for(int i = latency; i >= 1; i--){
+            for(int j = this->vertices.size() - 1; j >= 0; j--) {//iterate backwards between nodes 
+                if(!this->vertices.at(j).alapScheduled) {
+                    if(this->vertices.at(j).children.size() == 0) {//schedule, no children, bottom node
+                        this->vertices.at(j).alapScheduled = true;
+                        this->vertices.at(j).alap = i;
+                    }
+                    else {//has children, all of them must be scheduled
+                        bool allChildrenScheduled = true;
+                        int earliestSchedule = latency + 1;
+                        for(int k = 0; k < this->vertices.at(j).children.size(); k++) {
+                            if(!this->vertices.at(j).children.at(k)->alapScheduled) {
+                                allChildrenScheduled = false;
+                                break;
+                            }
+                            else {//if the child is scheduled, then we must record the earliest one of the children are scheduled
+                                  //this is because when scheduling the current node, there must be enough time for its operation to be completed
+                                if(this->vertices.at(j).children.at(k)->alap < earliestSchedule) {
+                                    earliestSchedule = this->vertices.at(j).children.at(k)->alap;
+                                }
+                            }
+                        }
+                        if(allChildrenScheduled) {//now, we check the current operation to see if there was enough time between it
+                                                  //and its earliest child
+                            string currentOp = this->vertices.at(j).operation.name;
+                            if(currentOp.compare("ADD") == 0) {//1 cycle delay
+                                if(i <= earliestSchedule - 1) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("SUB") == 0) {//1 cycle delay
+                                if(i <= earliestSchedule - 1) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("MULT") == 0) {//2 cycle delay
+                                if(i <= earliestSchedule - 2) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("DIV") == 0) {//3 cycle delay
+                                if(i <= earliestSchedule - 3) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("MOD") == 0) {//3 cycle delay
+                                if(i <= earliestSchedule - 3) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("TERN") == 0) {//1 cycle delay
+                                if(i <= earliestSchedule - 1) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        bool allScheduled = true;
+        for(int i = 0; i < this->vertices.size(); i++) {
+            if(!this->vertices.at(i).alapScheduled) {
+                allScheduled = false;
+                break;
+            }
+        }
+        if(!allScheduled) {
+            //quit program
+        }
+    }
     void asap(int latency) {
         for(int i = 1; i <= latency; i++) {
             for(int j = 0; j < this->vertices.size(); j++) {
@@ -150,7 +228,6 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                         //now that we know all parents are scheduled, we can start checking if these nodes have
                         //the resources to be scheduled
                         if(allParentScheduled){
-                            cout<<latestSchedule<<endl;
                             if(i>=latestSchedule) {
                                 this->vertices.at(j).asapScheduled = true;
                                 this->vertices.at(j).asap = i;
@@ -159,6 +236,16 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                     }
                 }
             }
+        }
+        bool allScheduled = true;
+        for(int i = 0; i < this->vertices.size(); i++) {
+            if(!this->vertices.at(i).asapScheduled) {
+                allScheduled = false;
+                break;
+            }
+        }
+        if(!allScheduled) {
+            //quit program
         }
     }
 };
@@ -336,6 +423,6 @@ int main() {
         visitedNodes.push_back(i); //add index of where the node visited was in the for loop
         visistedOutputs.push_back(current->output);
     }
-    g.asap(10);
+    g.alap(6);
     return 0;
 }
