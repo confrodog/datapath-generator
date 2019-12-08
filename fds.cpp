@@ -129,19 +129,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                         if(allChildrenScheduled) {//now, we check the current operation to see if there was enough time between it
                                                   //and its earliest child
                             string currentOp = this->vertices.at(j).operation.name;
-                            if(currentOp.compare("ADD") == 0) {//1 cycle delay
-                                if(i <= earliestSchedule - 1) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else if(currentOp.compare("SUB") == 0) {//1 cycle delay
-                                if(i <= earliestSchedule - 1) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else if(currentOp.compare("MULT") == 0) {//2 cycle delay
+                            if(currentOp.compare("MULT") == 0) {//2 cycle delay
                                 if(i <= earliestSchedule - 2) {
                                     this->vertices.at(j).alap = i;
                                     this->vertices.at(j).alapScheduled = true;
@@ -159,7 +147,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                                     this->vertices.at(j).alapScheduled = true;
                                 }
                             }
-                            else if(currentOp.compare("TERN") == 0) {//1 cycle delay
+                            else {
                                 if(i <= earliestSchedule - 1) {
                                     this->vertices.at(j).alap = i;
                                     this->vertices.at(j).alapScheduled = true;
@@ -202,13 +190,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                                 //use parent op name to find when the latest cycle is available
                                 string parentOp = this->vertices.at(j).parent.at(k)->operation.name;
                                 int tempLatest = 0;
-                                if(parentOp.compare("ADD") == 0) {//1 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
-                                }
-                                else if(parentOp.compare("SUB") == 0) {//1 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
-                                }
-                                else if(parentOp.compare("MULT") == 0) {//2 cycle delay
+                                if(parentOp.compare("MULT") == 0) {//2 cycle delay
                                     tempLatest = this->vertices.at(j).parent.at(k)->asap + 2;
                                 }
                                 else if(parentOp.compare("DIV") == 0) {//3 cycle delay
@@ -217,7 +199,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                                 else if(parentOp.compare("MOD") == 0) {//3 cycle delay
                                     tempLatest = this->vertices.at(j).parent.at(k)->asap + 3;
                                 }
-                                else if(parentOp.compare("TERN") == 0) {//1 cycle delay
+                                else {
                                     tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
                                 }
                                 if(tempLatest > latestSchedule) {
