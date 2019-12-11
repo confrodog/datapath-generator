@@ -79,6 +79,7 @@ public:
     bool alapScheduled;
     bool scheduled; // default false, helps to shrink each iteration of FDS
     int selfForce; // SUM(DG(i) * deltaX(i)) where DG(i) is time probability and deltaX(i) is
+    int delay;
     Node(){
         this->children = {};
         this->inputs = {};
@@ -92,6 +93,7 @@ public:
         this->asapScheduled = false;
         this->alapScheduled = false;
         this->selfForce = 0;
+        this->delay = 0;
     }
 };
 
@@ -109,33 +111,9 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                 if(!this->vertices.at(j).alapScheduled) {
                     string newCurrentOp = this->vertices.at(j).operation.name;
                     int delay = 0;
-                    if(newCurrentOp.compare("MULT") == 0) {//2 cycle delay
-                                if(i <= earliestSchedule - 2) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else if(currentOp.compare("DIV") == 0) {//3 cycle delay
-                                if(i <= earliestSchedule - 3) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else if(currentOp.compare("MOD") == 0) {//3 cycle delay
-                                if(i <= earliestSchedule - 3) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else {
-                                if(i <= earliestSchedule - 1) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
                     if(this->vertices.at(j).children.size() == 0) {//schedule, no children, bottom node
                         this->vertices.at(j).alapScheduled = true;
-                        this->vertices.at(j).alap = i;
+                        this->vertices.at(j).alap = (i - this->vertices.at(j).delay) + 1;
                     }
                     else {//has children, all of them must be scheduled
                         bool allChildrenScheduled = true;
@@ -154,30 +132,9 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                         }
                         if(allChildrenScheduled) {//now, we check the current operation to see if there was enough time between it
                                                   //and its earliest child
-                            string currentOp = this->vertices.at(j).operation.name;
-                            if(currentOp.compare("MULT") == 0) {//2 cycle delay
-                                if(i <= earliestSchedule - 2) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else if(currentOp.compare("DIV") == 0) {//3 cycle delay
-                                if(i <= earliestSchedule - 3) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else if(currentOp.compare("MOD") == 0) {//3 cycle delay
-                                if(i <= earliestSchedule - 3) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
-                            }
-                            else {
-                                if(i <= earliestSchedule - 1) {
-                                    this->vertices.at(j).alap = i;
-                                    this->vertices.at(j).alapScheduled = true;
-                                }
+                            if(i < earliestSchedule) {
+                                this->vertices.at(j).alap = (i - this->vertices.at(j).delay) + 1;
+                                this->vertices.at(j).alapScheduled = true;
                             }
                         }
                     }
@@ -214,20 +171,10 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                             else { //if the parent is scheduled, this records the latest a parent is scheduled
                                 //because the latest one is what determines when the child should be scheduled
                                 //use parent op name to find when the latest cycle is available
-                                string parentOp = this->vertices.at(j).parent.at(k)->operation.name;
+                                // string parentOp = this->vertices.at(j).parent.at(k)->operation.name;
+                                int parentDelay = this->vertices.at(j).parent.at(k)->delay;
                                 int tempLatest = 0;
-                                if(parentOp.compare("MULT") == 0) {//2 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 2;
-                                }
-                                else if(parentOp.compare("DIV") == 0) {//3 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 3;
-                                }
-                                else if(parentOp.compare("MOD") == 0) {//3 cycle delay
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 3;
-                                }
-                                else {
-                                    tempLatest = this->vertices.at(j).parent.at(k)->asap + 1;
-                                }
+                                tempLatest = this->vertices.at(j).parent.at(k)->asap + parentDelay;
                                 if(tempLatest > latestSchedule) {
                                     latestSchedule = tempLatest;
                                 }
@@ -404,11 +351,24 @@ int main() {
         Node curr;
         Operation currentOp = listOfOps.at(i);
         curr.operation = currentOp;
+        if(currentOp.name.compare("MULT") == 0) {//2 cycle delay
+            curr.delay = 2;
+        }
+        else if(currentOp.name.compare("DIV") == 0) {//3 cycle delay
+            curr.delay = 3;
+        }
+        else if(currentOp.name.compare("MOD") == 0) {//3 cycle delay
+            curr.delay = 3;
+        }
+        else {
+            curr.delay = 1;
+        }
         //TODO: add in the ternary operator check here, that's when the third variable will be used
         curr.inputs.push_back(currentOp.var1.name);
+        //TODO: add the ! thing check
         curr.inputs.push_back(currentOp.var2.name);
         if (currentOp.op1 == "?") {
-
+            curr.inputs.push_back(currentOp.var3.name);
         }
         curr.output = currentOp.result.name;
         g.vertices.push_back(curr);
