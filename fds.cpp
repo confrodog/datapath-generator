@@ -107,6 +107,32 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
         for(int i = latency; i >= 1; i--){
             for(int j = this->vertices.size() - 1; j >= 0; j--) {//iterate backwards between nodes 
                 if(!this->vertices.at(j).alapScheduled) {
+                    string newCurrentOp = this->vertices.at(j).operation.name;
+                    int delay = 0;
+                    if(newCurrentOp.compare("MULT") == 0) {//2 cycle delay
+                                if(i <= earliestSchedule - 2) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("DIV") == 0) {//3 cycle delay
+                                if(i <= earliestSchedule - 3) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else if(currentOp.compare("MOD") == 0) {//3 cycle delay
+                                if(i <= earliestSchedule - 3) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
+                            else {
+                                if(i <= earliestSchedule - 1) {
+                                    this->vertices.at(j).alap = i;
+                                    this->vertices.at(j).alapScheduled = true;
+                                }
+                            }
                     if(this->vertices.at(j).children.size() == 0) {//schedule, no children, bottom node
                         this->vertices.at(j).alapScheduled = true;
                         this->vertices.at(j).alap = i;
