@@ -303,6 +303,10 @@ vector<string> ReadFile(string inputFile, bool *validCircuit){
             parsedFile.push_back(str);
         }
     }
+    if(netlistFile.peek() == std::ifstream::traits_type::eof()){
+        *validCircuit = false;
+        return parsedFile;
+    }
     else{
 //        cout << "Unable to read file" << endl;
         *validCircuit = false;
@@ -552,7 +556,9 @@ vector<Operation> processOperation(vector<string> operations, vector<Variable> i
                         nestIf.equals = "=";
                         nestIf.var1 = first;
                         nestIf.op1 = "&&";
+                        nestIf.name = "COMP";
                         nestIf.var2 = second;
+                        
                         temp.push_back(nestIf);
                         first = c;
                         idx--;
@@ -670,7 +676,7 @@ vector<Operation> processOperation(vector<string> operations, vector<Variable> i
                 temp.push_back(o1);
                 if(numIf > 0)
                         temp.push_back(oCond);
-            }
+            } 
         }
     return temp;
 }
@@ -702,7 +708,7 @@ float SelfForce(Node node, int time, vector<float> dg_mult, vector<float> dg_add
                 // self force = DG(j) * deltaX(j) for alap - asap number of terms
                 selfForce -= dg_addsub.at(n-1) * prob;
             }
-            else if(node.operation.name == "COMP" || node.operation.name == "MUX2x1" || node.operation.name == "SHR" || node.operation.name == "SHL"){
+            else if(node.operation.name == "COMP" || node.operation.name == "MUX2x1" || node.operation.name == "SHR" || node.operation.name == "SHL" || node.operation.name == "NOT"){
                 // self force = DG(j) * deltaX(j) for alap - asap number of terms
                 selfForce -= dg_logic.at(n-1) * prob;
             }
@@ -718,7 +724,7 @@ float SelfForce(Node node, int time, vector<float> dg_mult, vector<float> dg_add
         else if(node.operation.name == "ADD" || node.operation.name == "SUB"){
             selfForce += dg_addsub.at(time-1);
         }
-        else if(node.operation.name == "COMP" || node.operation.name == "MUX2x1" || node.operation.name == "SHR" || node.operation.name == "SHL"){
+        else if(node.operation.name == "COMP" || node.operation.name == "MUX2x1" || node.operation.name == "SHR" || node.operation.name == "SHL" || node.operation.name == "NOT"){
             selfForce += dg_logic.at(time-1);
         }
     }
@@ -893,7 +899,7 @@ void DG(Graph g, vector<float>&dg_mult, vector<float>&dg_addsub, vector<float>&d
                 dg_addsub[j-1] += 1 / (mobility + 1);
             }
         }
-        if(i->operation.name == "COMP" || i->operation.name == "MUX2x1" || i->operation.name == "SHR" || i->operation.name == "SHL"){
+        if(i->operation.name == "COMP" || i->operation.name == "MUX2x1" || i->operation.name == "SHR" || i->operation.name == "SHL" || i->operation.name == "NOT"){
             // loop over the time intervals this operation covers
             // start at asap, end at alap
             for(unsigned int j = i->asap; j <= i->alap; j++){
@@ -1303,8 +1309,12 @@ int main(int argc, const char * argv[]) {
     bool validCircuit = true;
     bool* validPointer;
     validPointer = &validCircuit;
-    vector<string> parsedFile = ReadFile(argv[1], validPointer);
     
+    vector<string> parsedFile = ReadFile(argv[1], validPointer);
+     if(!validCircuit){
+        cout << "ERROR : Failure reading file."<< endl;
+        return 1;
+    }
     for(vector<string>::iterator i = parsedFile.begin(); i != parsedFile.end(); ++i){
         ParseLine(inputs, outputs, vars, operations, *i);
     }
@@ -1326,14 +1336,14 @@ int main(int argc, const char * argv[]) {
     g.schedule(latency, validPointer);
     
     cout << "####### RUNNING FDS #######" << endl;
-    FDS(g, latency);
-    
-    
     // one last check before printing the circuit
      if(!validCircuit){
-        cout << "ERROR : Circuit invalid or incorrect file provided."<< endl;
+        cout << "ERROR : Latency Error."<< endl;
         return 1;
     }
+    FDS(g, latency);
+    
+
     //where the file writing starts
     ofstream myfile (argv[3]);
     if(myfile.is_open()){
