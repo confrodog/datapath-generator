@@ -543,7 +543,7 @@ void DG(Graph g, vector<float>&dg_mult, vector<float>&dg_addsub, vector<float>&d
             for(unsigned int j = i->asap; j <= i->alap; j++){
                 // accumulate the probability for this component on the total
                 // type probability for this specific time
-                dg_divmod[j] += 1 / (mobility + 1);
+                dg_divmod[j-1] += 1 / (mobility + 1);
             }
         }
         if(i->operation.name == "ADD" || i->operation.name == "SUB"){
@@ -552,7 +552,7 @@ void DG(Graph g, vector<float>&dg_mult, vector<float>&dg_addsub, vector<float>&d
             for(unsigned int j = i->asap; j <= i->alap; j++){
                 // accumulate the probability for this component on the total
                 // type probability for this specific time
-                dg_addsub[j] += 1 / (mobility + 1);
+                dg_addsub[j-1] += 1 / (mobility + 1);
             }
         }
         if(i->operation.name == "COMP" || i->operation.name == "MUX" || i->operation.name == "SHR" || i->operation.name == "SHL"){
@@ -561,7 +561,7 @@ void DG(Graph g, vector<float>&dg_mult, vector<float>&dg_addsub, vector<float>&d
             for(unsigned int j = i->asap; j <= i->alap; j++){
                 // accumulate the probability for this component on the total
                 // type probability for this specific time
-                dg_logic[j] += 1 / (mobility + 1);
+                dg_logic[j-1] += 1 / (mobility + 1);
             }
         }
     } // end DG for
