@@ -203,6 +203,59 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
             //quit program
         }
     }
+    void populateNodes(vector<Operation> ops) {
+        for(int i = 0; i < ops.size(); i++) {
+            Node curr;
+            Operation currentOp = ops.at(i);
+            curr.operation = currentOp;
+            if(currentOp.name.compare("MULT") == 0) {//2 cycle delay
+                curr.delay = 2;
+            }
+            else if(currentOp.name.compare("DIV") == 0) {//3 cycle delay
+                curr.delay = 3;
+            }
+            else if(currentOp.name.compare("MOD") == 0) {//3 cycle delay
+                curr.delay = 3;
+            }
+            else {
+                curr.delay = 1;
+            }
+            //TODO: add in the ternary operator check here, that's when the third variable will be used
+            curr.inputs.push_back(currentOp.var1.name);
+            //TODO: add the ! thing check
+            if (currentOp.op1.compare("!") == 0) {
+                //don't need var1 or var 2
+            }
+            else {
+                curr.inputs.push_back(currentOp.var2.name);
+            }
+            if (currentOp.op1.compare("?") == 0) {
+                //need var 3
+                curr.inputs.push_back(currentOp.var3.name);
+            }
+            curr.output = currentOp.result.name;
+            this->vertices.push_back(curr);
+        }
+    }
+    void cdfg() {
+        vector<int> visitedNodes = {}; //keep track of what nodes have been seen, recording their indexes
+        vector<string> visistedOutputs = {};
+        for(int i = 0; i < this->vertices.size(); i++) {
+            Node *current = &this->vertices.at(i);
+            for(int j = 0; j < current->inputs.size(); j++) { //this is usually 2 iterations
+                string inp = current->inputs.at(j);
+                for(int foundIndex = 0; foundIndex < visistedOutputs.size(); foundIndex++) { //now, go through the visited outputs to see if the input matches anything
+                    if(inp == visistedOutputs.at(foundIndex)) {
+                        current->parent.push_back(&this->vertices.at(visitedNodes.at(foundIndex)));
+                        this->vertices.at(visitedNodes.at(foundIndex)).children.push_back(current);
+                        break;
+                    }
+                }
+            } 
+            visitedNodes.push_back(i); //add index of where the node visited was in the for loop
+            visistedOutputs.push_back(current->output);
+        }
+    }
 };
 
 // assume inputs are a graph G(V,E) and lambda.
@@ -347,50 +400,8 @@ int main() {
 
     Graph g;
     //creating all of the nodes for the graph
-    for(int i = 0; i < listOfOps.size(); i++) {
-        Node curr;
-        Operation currentOp = listOfOps.at(i);
-        curr.operation = currentOp;
-        if(currentOp.name.compare("MULT") == 0) {//2 cycle delay
-            curr.delay = 2;
-        }
-        else if(currentOp.name.compare("DIV") == 0) {//3 cycle delay
-            curr.delay = 3;
-        }
-        else if(currentOp.name.compare("MOD") == 0) {//3 cycle delay
-            curr.delay = 3;
-        }
-        else {
-            curr.delay = 1;
-        }
-        //TODO: add in the ternary operator check here, that's when the third variable will be used
-        curr.inputs.push_back(currentOp.var1.name);
-        //TODO: add the ! thing check
-        curr.inputs.push_back(currentOp.var2.name);
-        if (currentOp.op1 == "?") {
-            curr.inputs.push_back(currentOp.var3.name);
-        }
-        curr.output = currentOp.result.name;
-        g.vertices.push_back(curr);
-    }
-
-    vector<int> visitedNodes = {}; //keep track of what nodes have been seen, recording their indexes
-    vector<string> visistedOutputs = {};
-    for(int i = 0; i < g.vertices.size(); i++) {
-        Node *current = &g.vertices.at(i);
-        for(int j = 0; j < current->inputs.size(); j++) { //this is usually 2 iterations
-            string inp = current->inputs.at(j);
-            for(int foundIndex = 0; foundIndex < visistedOutputs.size(); foundIndex++) { //now, go through the visited outputs to see if the input matches anything
-                if(inp == visistedOutputs.at(foundIndex)) {
-                    current->parent.push_back(&g.vertices.at(visitedNodes.at(foundIndex)));
-                    g.vertices.at(visitedNodes.at(foundIndex)).children.push_back(current);
-                    break;
-                }
-            }
-        } 
-        visitedNodes.push_back(i); //add index of where the node visited was in the for loop
-        visistedOutputs.push_back(current->output);
-    }
+    g.populateNodes(listOfOps);
+    g.cdfg();
     g.alap(6);
     return 0;
 }
