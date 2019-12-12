@@ -1,0 +1,203 @@
+Inputs:
+1. a has bitwidth 32
+2. b has bitwidth 32
+3. c has bitwidth 32
+
+Outputs:
+1. z has bitwidth 32
+2. x has bitwidth 32
+
+Variables:
+1. d has bitwidth 32
+2. e has bitwidth 32
+3. f has bitwidth 32
+4. g has bitwidth 32
+5. h has bitwidth 32
+6. dLTe has bitwidth 1
+7. dEQe has bitwidth 1
+
+Operations:
+d = a + b
+e = a + c
+f = a - b  
+dEQe = d == e
+dLTe = d < e
+g = dLTe ? d : e 
+h = dEQe ? g : f 
+x = g << dLTe
+z = h >> dEQe
+####### PRINTING NODES #######
+Node: 1 Op: ADD Node: 2 Op: ADD Node: 3 Op: SUB Node: 4 Op: COMP Node: 5 Op: COMP Node: 6 Op: MUX2x1 Node: 7 Op: MUX2x1 Node: 8 Op: SHL Node: 9 Op: SHR 
+####### RUNNING FDS #######
+FDS -> NODE COUNT: 9
+
+beginning node: 1 time frame: [1, 2]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1.25] [1.25] [0.25] [0.25] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0.833333] [1.33333] [1.66667] [1.33333] [0.833333] 
+Self: 0 Pred: 0 Succ: 0 Total: 0
+Self: 0 Pred: 0 Succ: 0 Total: 0
+lowest total force: 0 at time: 1
+
+SCHEDULED -> NODE: 1 FDS: 1 ASAP: 1 ALAP: 1
+
+beginning node: 2 time frame: [1, 2]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1.75] [0.75] [0.25] [0.25] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0.833333] [1.33333] [1.66667] [1.33333] [0.833333] 
+Self: 0.5 Pred: 0 Succ: 0 Total: 0.5
+Self: -0.5 Pred: 0 Succ: 0 Total: -0.5
+lowest total force: -0.5 at time: 2
+
+SCHEDULED -> NODE: 2 FDS: 2 ASAP: 2 ALAP: 2
+
+beginning node: 3 time frame: [1, 4]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1.25] [1.25] [0.25] [0.25] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [2] [1.83333] [1.33333] [0.833333] 
+Self: 0.5 Pred: 0 Succ: 0 Total: 0.5
+Self: 0.5 Pred: 0 Succ: 0 Total: 0.5
+Self: -0.5 Pred: 0 Succ: 0 Total: -0.5
+Self: -0.5 Pred: 0 Succ: -0.5 Total: -1
+lowest total force: -1 at time: 4
+
+SCHEDULED -> NODE: 3 FDS: 4 ASAP: 4 ALAP: 4
+
+beginning node: 4 time frame: [3, 4]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1] [1] [0] [1] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [2] [1.33333] [1.83333] [0.833333] 
+Self: 0.333333 Pred: 0 Succ: -0.333333 Total: -1.19209e-07
+Self: -0.333333 Pred: 0 Succ: -0.5 Total: -0.833333
+lowest total force: -0.833333 at time: 4
+
+SCHEDULED -> NODE: 4 FDS: 4 ASAP: 4 ALAP: 4
+
+beginning node: 5 time frame: [3, 3]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1] [1] [0] [1] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [1.5] [1.83333] [1.83333] [0.833333] 
+Self: 0 Pred: 0 Succ: -1.19209e-07 Total: -1.19209e-07
+lowest total force: -1.19209e-07 at time: 3
+
+SCHEDULED -> NODE: 5 FDS: 3 ASAP: 3 ALAP: 3
+
+beginning node: 6 time frame: [4, 4]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1] [1] [0] [1] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [1] [2.33333] [1.83333] [0.833333] 
+Self: 0 Pred: 0 Succ: -0.5 Total: -0.5
+lowest total force: -0.5 at time: 4
+
+SCHEDULED -> NODE: 6 FDS: 4 ASAP: 4 ALAP: 4
+
+beginning node: 7 time frame: [5, 5]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1] [1] [0] [1] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [1] [2] [2] [1] 
+Self: 0 Pred: 0 Succ: -0.5 Total: -0.5
+lowest total force: -0.5 at time: 5
+
+SCHEDULED -> NODE: 7 FDS: 5 ASAP: 5 ALAP: 5
+
+beginning node: 8 time frame: [5, 6]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1] [1] [0] [1] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [1] [2] [1.5] [1.5] 
+Self: 0 Pred: 0 Succ: 0 Total: 0
+Self: 0 Pred: 0 Succ: 0 Total: 0
+lowest total force: 0 at time: 5
+
+SCHEDULED -> NODE: 8 FDS: 5 ASAP: 5 ALAP: 5
+
+beginning node: 9 time frame: [6, 6]
+DG_MULT: [0] [0] [0] [0] [0] [0] 
+DG_ADD/SUB: [1] [1] [0] [1] [0] [0] 
+DG_DIV/MOD: [0] [0] [0] [0] [0] [0] 
+DG_LOGICAL: [0] [0] [1] [2] [2] [1] 
+Self: 0 Pred: 0 Succ: 0 Total: 0
+lowest total force: 0 at time: 6
+
+SCHEDULED -> NODE: 9 FDS: 6 ASAP: 6 ALAP: 6
+
+`timescale 1ns / 1ps 
+
+module HLSM (clk, rst, Start, Done, a, b, c, z, x);
+
+	input Clk, Rst, Start;
+	input signed [31:0] a;
+	input signed [31:0] b;
+	input signed [31:0] c;
+	output reg Done;
+	output reg signed [31:0] z;
+	output reg signed [31:0] x;
+	parameter S0 = 0, S1 = 1 ,S2 = 2 ,S3 = 3 ,S4 = 4 ,S5 = 5 ,S6 = 6;
+	reg signed [31:0] d;
+	reg signed [31:0] e;
+	reg signed [31:0] f;
+	reg signed [31:0] g;
+	reg signed [31:0] h;
+	reg [0:0] dLTe;
+	reg [0:0] dEQe;
+	reg [2:0] State;
+	always @(posedge Clk) begin
+		if(Rst) begin
+			State <= S0;
+			z <= 0;
+			x <= 0;
+			d <= 0;
+			e <= 0;
+			f <= 0;
+			g <= 0;
+			h <= 0;
+			dLTe <= 0;
+			dEQe <= 0;
+		end
+		else begin
+			case(State)
+				S0: begin
+					if (Start) begin
+						State <= S1;
+					end
+					else begin
+						State <= S0;
+					end
+				end
+				S1: begin
+					d= a+b;
+				end
+				S2: begin
+					e= a+c;
+				end
+				S3: begin
+					dLTe= d<e;
+				end
+				S4: begin
+					dEQe= d==e;
+					f= a-b;
+					g= d?e:dLTe;
+				end
+				S5: begin
+					h= g?f:dEQe;
+					x= g<<dLTe;
+				end
+				S6: begin
+					z= h>>dEQe;
+				end
+				S7: begin
+					State <= S0;
+					Done <= 1;
+				end
+			endcase
+		end
+	end
+endmodule
+Program ended with exit code: 0
