@@ -256,6 +256,10 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
             visistedOutputs.push_back(current->output);
         }
     }
+    void schedule(int latency) {
+        this->alap(latency);
+        this->asap(latency);
+    }
 };
 
 // assume inputs are a graph G(V,E) and lambda.
@@ -338,6 +342,389 @@ void FDS(Graph g, int lambda){
         }
     } // end while
 }
+vector<string> ReadFile(string inputFile, bool *validCircuit){
+//    cout << "Reading File...\n";
+    vector<string> parsedFile;
+    ifstream netlistFile;
+    netlistFile.open(inputFile);
+
+    if(netlistFile){
+        string str;
+        while(getline(netlistFile, str)){
+            parsedFile.push_back(str);
+        }
+    }
+    else{
+//        cout << "Unable to read file" << endl;
+        *validCircuit = false;
+        return parsedFile;
+    }
+//    cout << "Done reading file." << endl;
+    return parsedFile;
+}
+
+void PrintOperands(vector<Variable> &inputs, vector<Variable> &outputs, vector<Variable> &vars, vector<string>& operations){
+    cout << "Inputs:\n";
+    for(vector<Variable>::iterator i = inputs.begin(); i != inputs.end(); i++){
+        cout << distance(inputs.begin(), i)+1 << ". "<<  (*i).name << " has bitwidth " << (*i).bits << "\n";
+    }
+    cout << "\nOutputs:\n";
+    for(vector<Variable>::iterator i = outputs.begin(); i != outputs.end(); i++){
+        cout << distance(outputs.begin(), i)+1 << ". "<<  (*i).name << " has bitwidth " << (*i).bits << "\n";
+    }
+    cout << "\nVariables:\n";
+    for(vector<Variable>::iterator i = vars.begin(); i != vars.end(); i++){
+        cout << distance(vars.begin(), i)+1 << ". "<<  (*i).name << " has bitwidth " << (*i).bits << "\n";
+    }
+    cout << "\nOperations:\n";
+    for(vector<string>::iterator i = operations.begin(); i != operations.end(); i++){
+            cout << (*i) << "\n";
+    }
+}
+
+void ParseLine(vector<Variable>& inputs, vector<Variable>& outputs, vector<Variable>& vars, vector<string>& operations, string line){
+    //parse into inputs, outputs, wires and operations
+    
+    if(line.find("input")==0){
+        //input Int8 a, b, c
+        int BW = -1;
+        BW = atoi(&line[line.find("Int")+3]);
+        char U = line.at(line.find("Int")-1);
+
+        
+        for(int i = line.find(' ',line.find("Int")); i< line.length(); i++){
+            if(line[i] == '/'){
+                if(line[i+1] == '/'){
+                    i = line.length();
+                }
+            }
+            else if(line[i] != ' ' && line[i]!=',' && line[i] != '\t'){
+                Variable input;
+                int j = i;
+                while(line[j] != ',' &&  line[j] != '\0' && line[j]!= ' ' && line[j] != '\t'){
+                    if((j-i)>0)
+                        i = j;
+                    input.name += line[j];
+                    j++;
+                }
+                if(U == 'U'|| BW == 1){
+                    input.type = "u";
+                }
+                else{
+                    input.type = "s";
+                }
+                input.bits = BW;
+
+                inputs.push_back(input);
+            }
+        }
+    }
+    else if(line.find("output")==0){
+        int BW = -1;
+        BW = atoi(&line[line.find("Int")+3]);
+        char U = line.at(line.find("Int")-1);
+        
+        for(int i = line.find(' ',line.find("Int"));  i< line.length(); i++){
+            if(line[i] == '/'){
+                if(line[i+1] == '/'){
+                    i = line.length();
+                }
+            }
+            else if(line[i] != ' ' && line[i]!=',' && line[i] != '\t'){
+                Variable output;
+                int j = i;
+                while(line[j] != ',' &&  line[j] != '\0' && line[j]!= ' ' && line[j] != '\t'){
+                    if((j-i)>0)
+                        i = j;
+                    output.name += line[j];
+                    j++;
+                }
+                if(U == 'U'|| BW == 1){
+                    output.type = "u";
+                }
+                else{
+                    output.type = "s";
+                }
+                output.bits = BW;
+                outputs.push_back(output);
+            }
+        }
+    }
+    else if(line.find("variable")==0){
+        int BW = -1;
+        BW = atoi(&line[line.find("Int")+3]);
+        char U = line.at(line.find("Int")-1);
+        
+        for(int i = line.find(' ',line.find("Int"));  i< line.length(); i++){
+            if(line[i] == '/'){
+                if(line[i+1] == '/'){
+                    i = line.length();
+                }
+            }
+            else if(line[i] != ' ' && line[i]!=',' && line[i] != '\t'){
+                Variable var;
+                int j = i;
+                while(line[j] != ',' &&  line[j] != '\0' && line[j]!= ' ' && line[j] != '\t'){
+                    if((j-i)>0)// check to skip rest of whole words
+                        i = j;
+                    var.name += line[j];
+                    j++;
+                }
+                if(U == 'U' || BW == 1){
+                    var.type = "u";
+                }
+                else{
+                    var.type = "s";
+                }
+                var.bits = BW;
+                vars.push_back(var);
+            }
+        }
+    }
+    else if(line.find("=") != std::string::npos || line.find("{") != std::string::npos || line.find("}") != std::string::npos){
+        operations.push_back(line);
+    }
+}
+
+// search all the vectors and return the Variable, else empty Variable
+Variable searchVariables(vector<Variable> in, vector<Variable> out, vector<Variable> vari, string find){
+    std::vector<Variable>::iterator it;
+    for(it = in.begin(); it != in.end(); ++it){
+        if(it->name == find){
+            return *it;
+        }
+    }
+    for(it = out.begin(); it != out.end(); ++it){
+        if(it->name == find){
+            return *it;
+        }
+    }
+    for(it = vari.begin(); it != vari.end(); ++it){
+        if(it->name == find){
+            return *it;
+        }
+    }
+    Variable var;
+    return var;
+}
+
+int maxInputBits(Operation op){
+    unsigned int max = 0;
+    if(op.var1.bits > max){
+        max = op.var1.bits;
+    }
+    if(op.var2.bits > max){
+        max = op.var2.bits;
+    }
+    if(op.var3.bits > max){
+        max = op.var3.bits;
+    }
+    return max;
+}
+
+
+
+// process the string operations and return the Operation vector
+vector<Operation> processOperation(vector<string> operations, vector<Variable> inputs, vector<Variable> outputs, vector<Variable> vars, bool* validCircuit){
+    vector<Operation> temp;
+     // TODO: move this shit to a function
+       // create a stringstream to parse the elements of the operation line string
+       // iterate through the operation vector
+       int numIf = 0;
+       bool elseCond = false;
+       int elseIndex = -1;
+       vector<Variable> ifCond;
+       vector<bool> elseCondition;
+       for(unsigned int i = 0; i < operations.size(); i++){
+           stringstream opstream;
+           string result, equals, var1, op1, var2, op2, var3;
+           // throw the line into the stream
+           opstream << operations.at(i);
+           // stream into the variables
+           opstream >> result >> equals >> var1 >> op1 >> var2 >> op2 >> var3;
+           // create new operation with parsed operators
+           if(result == "if"){
+               numIf++;
+                Variable v = searchVariables(inputs, outputs, vars, var1);
+                ifCond.push_back(v);
+                elseCondition.push_back(false);
+           }
+           else if(result == "}" && i != operations.size()-1){
+               stringstream eop;
+               string e;
+               eop << operations.at(i+1);
+               eop >> e;
+               elseCond = e == "else";
+               if(!elseCond){
+                    numIf--;
+                    ifCond.erase(ifCond.end());
+                    elseCondition.erase(elseCondition.end());
+               }
+               else{
+                   elseCondition[elseCondition.size()-1] = true;
+               }
+           }
+           else if (result != "else" && result != "}"){
+                Operation oCond;
+                if(numIf > 0){
+                    int s = ifCond.size();
+                    Variable first = ifCond[ifCond.size()-1];
+                    int idx = ifCond.size()-1;
+                    while(idx > 0){
+                        Variable second = ifCond[idx-1];
+                        if(elseCondition[idx] == false && elseCondition[idx-1 == true]){
+                            Variable e = Variable("e_" + to_string(i), "", 32);
+                            vars.push_back(e);
+                            Operation eo;
+                            eo.result = e;
+                            eo.equals = "=";
+                            eo.op1 = "!";
+                            eo.var1 = second;
+                            eo.name = "NOT";
+                            temp.push_back(eo);
+                            second = e;
+                        }
+                        else if(elseCondition[idx] == true && idx == ifCond.size() -1){
+                            Variable e = Variable("e_" + to_string(i), "", 32);
+                            vars.push_back(e);
+                            Operation eo;
+                            eo.result = e;
+                            eo.equals = "=";
+                            eo.op1 = "!";
+                            eo.var1 = first;
+                            eo.name = "NOT";
+                            temp.push_back(eo);
+                            first = e;
+                        }
+                        Variable c = Variable("cond" + to_string(s) +"_"+to_string(i), "", 32);
+                        vars.push_back(c);
+                        Operation nestIf;
+                        nestIf.result = c;
+                        nestIf.equals = "=";
+                        nestIf.var1 = first;
+                        nestIf.op1 = "&&";
+                        nestIf.var2 = second;
+                        temp.push_back(nestIf);
+                        first = c;
+                        idx--;
+                        
+                    }
+                    Variable v = searchVariables(inputs, outputs, vars, result);
+                    if(v.bits == 0){
+                        *validCircuit = false;
+                    }
+                    else{
+                        oCond.result = v;
+                    }
+                    oCond.equals = "=";
+                    oCond.var1 = first;
+                    oCond.op1 = "?";
+
+                    result = result + to_string(i);
+                    Variable r = Variable(result, "", 32);
+                    vars.push_back(r);
+
+                    oCond.var2 = r;
+                    oCond.op2 = ":";
+                    oCond.var3 = v;
+                }
+                Operation o1;
+                o1.equals = equals;
+                o1.op1 = op1;
+                o1.op2 = op2;
+                // discover component and assign to name
+                if(op1 == "")
+                    o1.name = "REG";
+                else if(op1 == "+" && var2 == "1")
+                    o1.name = "INC";
+                else if(op1 == "+")
+                    o1.name = "ADD";
+                else if(op1 == "-" && var2 == "1")
+                        o1.name = "DEC";
+                else if(op1 == "-")
+                    o1.name = "SUB";
+                else if(op1 == "*")
+                    o1.name = "MUL";
+                else if(op1 == ">" || op1 == "<" || op1 == "==")
+                    o1.name = "COMP";
+                else if(op1 == "?" && op2 == ":")
+                        o1.name = "MUX2x1";
+                else if(op1 == ">>")
+                    o1.name = "SHR";
+                else if(op1 == "<<")
+                    o1.name = "SHL";
+                else if(op1 == "/")
+                    o1.name = "DIV";
+                else if(op1 == "%")
+                    o1.name = "MOD";
+                else if(op1 == "/")
+                    o1.name = "DIV";
+                else{
+                    *validCircuit = false;
+                }
+                Variable r1 = searchVariables(inputs, outputs, vars, result);
+                if(r1.bits == 0){
+                    *validCircuit = false;
+                }
+                else{
+                    o1.result = r1;
+                }
+                if(equals != "="){
+                    *validCircuit = false;
+                }
+
+                // validate 'var1'
+                Variable v1 = searchVariables(inputs, outputs, vars, var1);
+                if(v1.bits == 0){
+                    *validCircuit = false;
+                }
+                else{
+                    if(o1.name == "MUX2x1"){
+                        o1.var3 = v1;
+                    }
+                    else{
+                        o1.var1 = v1;
+                    }
+
+                }
+                Variable v2 = searchVariables(inputs, outputs, vars, var2);
+                if(v2.bits == 0 && o1.name != "INC" && o1.name != "REG" && o1.name != "DEC"){
+                    *validCircuit = false;
+                }
+                else{
+                    if(o1.name == "MUX2x1"){
+                        o1.var1 = v2;
+                    }
+                    else{
+                        o1.var2 = v2;
+                    }
+                }
+           
+                Variable v3 = searchVariables(inputs, outputs, vars, var3);
+                if(v3.bits != 0 && o1.name != "MUX2x1"){
+                    *validCircuit = false;
+                }
+                else{
+                    if(o1.name == "MUX2x1"){
+                        o1.var2 = v3;
+                    }
+                    else{
+                        o1.var3 = v3;
+                    }
+                }
+                if(o1.name == "COMP"){
+                    o1.bits = maxInputBits(o1);
+                }
+                else{
+                    o1.bits = o1.result.bits;
+                }
+                temp.push_back(o1);
+                if(numIf > 0)
+                        temp.push_back(oCond);
+            }
+        }
+    return temp;
+}
 
 int main() {
     vector<Operation> listOfOps; //create a list of test operations
@@ -398,10 +785,28 @@ int main() {
 
     listOfOps.push_back(op4);
 
+    vector<Variable> inputs;
+    vector<Variable> outputs;
+    vector<Variable> vars;
+    vector<string> operations;
+    bool validCircuit = true;
+    bool* validPointer;
+    validPointer = &validCircuit;
+    vector<string> parsedFile = ReadFile("C://Users//frees//Documents//School//ECE 474//datapath-generator//test.txt", validPointer);
+    
+    for(vector<string>::iterator i = parsedFile.begin(); i != parsedFile.end(); ++i){
+        ParseLine(inputs, outputs, vars, operations, *i);
+    }
+    
+    PrintOperands(inputs, outputs, vars, operations);
+    
+    // validate operations
+    vector<Operation> ops = processOperation(operations, inputs, outputs, vars, validPointer);
+
     Graph g;
     //creating all of the nodes for the graph
-    g.populateNodes(listOfOps);
+    g.populateNodes(ops);
     g.cdfg();
-    g.alap(6);
+    g.schedule(6);
     return 0;
 }
