@@ -105,7 +105,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
     Graph(){
     }
     //multiplies have 2 cycle delay, divide and modulo and 3 cycle delay, all others 1 cycle
-    void alap(int latency) {
+    void alap(int latency, bool* validCircuit) {
         for(int i = latency; i >= 1; i--){
             for(int j = this->vertices.size() - 1; j >= 0; j--) {//iterate backwards between nodes 
                 if(!this->vertices.at(j).alapScheduled) {
@@ -150,9 +150,10 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
         }
         if(!allScheduled) {
             //quit program
+            *validCircuit = false;
         }
     }
-    void asap(int latency) {
+    void asap(int latency, bool* validCircuit) {
         for(int i = 1; i <= latency; i++) {
             for(int j = 0; j < this->vertices.size(); j++) {
                 if(!this->vertices.at(j).asapScheduled) {
@@ -201,6 +202,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
         }
         if(!allScheduled) {
             //quit program
+            *validCircuit = false;
         }
     }
     void populateNodes(vector<Operation> ops) {
@@ -256,9 +258,9 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
             visistedOutputs.push_back(current->output);
         }
     }
-    void schedule(int latency) {
-        this->alap(latency);
-        this->asap(latency);
+    void schedule(int latency, bool* validCircuit) {
+        this->alap(latency, validCircuit);
+        this->asap(latency, validCircuit);
     }
 };
 
