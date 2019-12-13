@@ -208,6 +208,7 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
     void populateNodes(vector<Operation> ops) {
         for(int i = 0; i < ops.size(); i++) {
             Node curr;
+            curr.num = i + 1;
             Operation currentOp = ops.at(i);
             curr.operation = currentOp;
             if(currentOp.name.compare("MULT") == 0) {//2 cycle delay
@@ -223,17 +224,17 @@ class Graph{ // will contain the vector of all the edges, where the edges have t
                 curr.delay = 1;
             }
             //TODO: add in the ternary operator check here, that's when the third variable will be used
-            curr.inputs.push_back(currentOp.var1.name);
-            //TODO: add the ! thing check
-            if (currentOp.op1.compare("!") == 0) {
-                //don't need var1 or var 2
+            if(currentOp.isif) {
+                for(int j = 0; j < currentOp.inputs.size(); j++) {
+                    curr.inputs.push_buck(currrentOp.inputs.at(j));
+                }
+                for(int j = 0; j < currentOp.ifcon.size(); j++) {
+                    curr.inputs.push_back(currentOp.ifcon.at(j));
+                }
             }
             else {
+                curr.inputs.push_back(currentOp.var1.name);
                 curr.inputs.push_back(currentOp.var2.name);
-            }
-            if (currentOp.op1.compare("?") == 0) {
-                //need var 3
-                curr.inputs.push_back(currentOp.var3.name);
             }
             curr.output = currentOp.result.name;
             this->vertices.push_back(curr);
